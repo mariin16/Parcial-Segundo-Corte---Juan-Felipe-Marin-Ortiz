@@ -7,7 +7,7 @@ const registrarPostulacion = async (req, res) => {
     if (!candidato_id || !oferta_id)
       return res.status(400).json({ error: 'candidato_id y oferta_id son requeridos' });
 
-    // Regla 1: candidato existe y está activo
+
     const [candidato] = await dbTalento.query(
       'SELECT * FROM candidatos WHERE id = ? AND estado = "activo"',
       [candidato_id]
@@ -15,7 +15,7 @@ const registrarPostulacion = async (req, res) => {
     if (!candidato[0])
       return res.status(400).json({ error: 'Candidato no existe o no está activo' });
 
-    // Regla 2: candidato tiene al menos una habilidad requerida con nivel mínimo
+
     const [habilidades] = await dbTalento.query(
       'SELECT habilidad_id, nivel FROM candidato_habilidades WHERE candidato_id = ?',
       [candidato_id]
@@ -31,7 +31,7 @@ const registrarPostulacion = async (req, res) => {
     if (!cumple)
       return res.status(400).json({ error: 'El candidato no cumple las habilidades requeridas' });
 
-    // Regla 3: no puede postularse dos veces
+
     const [result] = await dbEmpleos.query(
       'INSERT INTO postulation (candidato_id, oferta_id) VALUES (?, ?)',
       [candidato_id, oferta_id]
