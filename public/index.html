@@ -1,43 +1,99 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test index</title>
+  <title>Gestión de Talento</title>
 </head>
-
 <body>
-  <div>
-    <h1>SQL Operations</h1>
+  <h1>Sistema de Gestión de Talento</h1>
 
-    <section>
-      <h2>Post Operation</h2>
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
-        <label for="birthdate">Birthdate:</label><br>
-        <input type="date" id="birthdate" name="birthdate" required><br><br>
+  <!-- REGISTRAR CANDIDATO -->
+  <section>
+    <h2>Registrar Candidato</h2>
+    <label>Nombre:</label><br>
+    <input type="text" id="nombre"><br><br>
+    <label>Correo:</label><br>
+    <input type="text" id="email"><br><br>
+    <button onclick="registrarCandidato()">Registrar</button>
+    <p id="resultCandidato"></p>
+  </section>
 
-        <button id="postBtn">Send</button>
-      <p id="postSqlResult"></p>
-    </section>
+  <hr>
 
-    <section>
-      <h2>Get All Entries</h2>
-      <button id="getAllBtn">Get All</button>
-      <ul id="getAllResult"></ul>
-    </section>
 
-    <section>
-      <h2>Get Entry by ID</h2>
-        <label for="id">id:</label><br>
-        <input type="text" id="id" name="id" required><br><br>
-        <button id="getOneBtn">Send</button>
-      <ul id="getOneResult"></ul>
-    </section>
-  </div>
+  <section>
+    <h2>Registrar Postulación</h2>
+    <label>ID Candidato:</label><br>
+    <input type="number" id="candidato_id"><br><br>
+    <label>ID Oferta:</label><br>
+    <input type="number" id="oferta_id"><br><br>
+    <button onclick="registrarPostulacion()">Postular</button>
+    <p id="resultPostulacion"></p>
+  </section>
 
-  <script src="./js/sql.js"></script>
+  <hr>
+
+  <section>
+    <h2>Consultar Estado de Postulación</h2>
+    <label>ID Postulación:</label><br>
+    <input type="number" id="postulacion_id"><br><br>
+    <button onclick="consultarPostulacion()">Consultar</button>
+    <p id="resultConsulta"></p>
+  </section>
+
+  <hr>
+
+
+  <section>
+    <h2>Ofertas Disponibles</h2>
+    <button onclick="getOfertas()">Ver Ofertas</button>
+    <ul id="listaOfertas"></ul>
+  </section>
+
+  <script>
+    async function registrarCandidato() {
+      const nombre = document.getElementById('nombre').value;
+      const email = document.getElementById('email').value;
+      const res = await fetch('/candidatos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, email })
+      });
+      const data = await res.json();
+      document.getElementById('resultCandidato').textContent = JSON.stringify(data);
+    }
+
+    async function registrarPostulacion() {
+      const candidato_id = parseInt(document.getElementById('candidato_id').value);
+      const oferta_id = parseInt(document.getElementById('oferta_id').value);
+      const res = await fetch('/postulaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidato_id, oferta_id })
+      });
+      const data = await res.json();
+      document.getElementById('resultPostulacion').textContent = JSON.stringify(data);
+    }
+
+    async function consultarPostulacion() {
+      const id = document.getElementById('postulacion_id').value;
+      const res = await fetch(`/postulaciones/${id}`);
+      const data = await res.json();
+      document.getElementById('resultConsulta').textContent = JSON.stringify(data);
+    }
+
+    async function getOfertas() {
+      const res = await fetch('/postulaciones/ofertas/all');
+      const data = await res.json();
+      const lista = document.getElementById('listaOfertas');
+      lista.innerHTML = '';
+      data.forEach(o => {
+        const li = document.createElement('li');
+        li.textContent = `ID: ${o.id} - ${o.titulo}: ${o.descripcion}`;
+        lista.appendChild(li);
+      });
+    }
+  </script>
 </body>
-
 </html>
